@@ -536,12 +536,12 @@ class GRPOTrainer(BaseTrainer):
         self.num_completions_to_print = args.num_completions_to_print
         # Keep logs sized to the generation batch to record only outputs from the latest model update.
         self._logs = {
-            "images": deque(maxlen=args.generation_batch_size),
-            "prompt": deque(maxlen=args.generation_batch_size),
-            "completion": deque(maxlen=args.generation_batch_size),
-            "rewards": defaultdict(lambda: deque(maxlen=args.generation_batch_size)),
-            "advantages": deque(maxlen=args.generation_batch_size),
-        }
+                "images": deque(maxlen=args.generation_batch_size),
+                "prompt": deque(maxlen=args.generation_batch_size),
+                "completion": deque(maxlen=args.generation_batch_size),
+                "rewards": defaultdict(lambda: deque(maxlen=args.generation_batch_size)),
+                "advantages": deque(maxlen=args.generation_batch_size),
+            }
 
         # Ensure each process receives a unique seed to prevent duplicate completions when generating with
         # transformers if num_generations exceeds per_device_train_batch_size. We could skip it if we use vLLM, but
@@ -1108,7 +1108,7 @@ class GRPOTrainer(BaseTrainer):
                     reward_inputs = super()._prepare_inputs(reward_inputs)
                     with torch.inference_mode():
                         rewards_per_func[:, i] = reward_func(**reward_inputs).logits[:, 0]  # Shape (B*G,)
-                else:
+                else: ##########################################################################################
                     output_reward_func = reward_func(
                         prompts=prompts, completions=completions, completion_ids=completion_ids_list, **reward_kwargs
                     )
@@ -1642,7 +1642,10 @@ class GRPOTrainer(BaseTrainer):
 
         # Log prompt and completion texts
         self._logs["prompt"].extend(gather_object(prompts_text))
-        self._logs["completion"].extend(gather_object(completions_text))
+        
+        gathered_completions = gather_object(completions_text)
+        self._logs["completion"].extend(gathered_completions)
+
         for i, name in enumerate(self.reward_func_names):
             self._logs["rewards"][name].extend(rewards_per_func[:, i].tolist())
         self._logs["advantages"].extend(all_process_advantages.tolist())

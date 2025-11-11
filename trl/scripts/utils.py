@@ -177,6 +177,15 @@ class ScriptArguments:
             https://github.com/huggingface/transformers/issues/22482#issuecomment-1595790992.
     """
 
+    train_data_path: str = field(
+        default="/workspace/dataset/train.parquet",
+        metadata={"help": "Path to the training dataset (parquet)"}
+    )
+    eval_data_path: str = field(
+        default="/workspace/dataset/test.parquet",
+        metadata={"help": "Path to the evaluation dataset (parquet)"}
+    )
+
     dataset_name: str | None = field(
         default=None,
         metadata={"help": "Path or name of the dataset to load. If `datasets` is provided, this will be ignored."},
